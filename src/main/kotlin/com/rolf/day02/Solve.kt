@@ -38,14 +38,7 @@ class Solve : Day() {
     }
 
     private fun toDelta(numbers: List<Int>): List<Int> {
-        val deltas = mutableListOf<Int>()
-        for (i in 0 until numbers.size - 1) {
-            val a = numbers[i]
-            val b = numbers[i + 1]
-            val delta = b - a
-            deltas.add(delta)
-        }
-        return deltas
+        return numbers.zipWithNext { a, b -> b - a }
     }
 
     override fun solve2(lines: List<String>) {
@@ -60,21 +53,14 @@ class Solve : Day() {
     }
 
     private fun toAlternativeReports(reports: List<List<Int>>): List<List<List<Int>>> {
-        val alternatives = mutableListOf<List<List<Int>>>()
-        for (report in reports) {
-            val originalAndCombinations = listOf(report) + combinations(report)
-            alternatives.add(originalAndCombinations)
+        return reports.map { report ->
+            listOf(report) + combinations(report)
         }
-        return alternatives
     }
 
     private fun combinations(ints: List<Int>): List<List<Int>> {
-        val combinations = mutableListOf<List<Int>>()
-        for (i in 0 until ints.size) {
-            val copy = ints.toMutableList()
-            copy.removeAt(i)
-            combinations.add(copy)
+        return ints.indices.map { i ->
+            ints.filterIndexed { index, _ -> index != i }
         }
-        return combinations
     }
 }
