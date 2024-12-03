@@ -8,11 +8,30 @@ fun main() {
 
 class Solve : Day() {
     override fun solve1(lines: List<String>) {
+        val line = joinLines(lines)
+        val muls = findMuls(line)
+        val sum = muls.sumOf {
+            multiply(it.value)
+        }
+        println(sum)
+    }
+
+    override fun solve2(lines: List<String>) {
         val line = lines.joinToString("")
-        val regex = Regex("""mul\([0-9]{1,3},[0-9]{1,3}\)""")
-        val matches = regex.findAll(line).map { it.value }
-        val outcome = matches.map { multiply(it) }
-        println(outcome.sum())
+        val muls = findMuls(line)
+        val dos = findDos(line)
+        val donts = findDonts(line)
+
+        val sum = muls.filter { mul ->
+            isEnabled(mul, dos, donts)
+        }.sumOf {
+            multiply(it.value)
+        }
+        println(sum)
+    }
+
+    private fun joinLines(strings: List<String>): String {
+        return strings.joinToString("")
     }
 
     private fun multiply(string: String): Int {
@@ -20,37 +39,45 @@ class Solve : Day() {
         return numbers[0] * numbers[1]
     }
 
-    override fun solve2(lines: List<String>) {
-        val line = lines.joinToString("")
-        println(calculate(line))
+    private fun findMuls(line: String): List<MatchResult> {
+        val regex = Regex("""mul\([0-9]{1,3},[0-9]{1,3}\)""")
+        return regex.findAll(line).toList()
     }
 
-    private fun calculate(line: String): Long {
-        var enabled = true
-        var index = 0
-        val regex = Regex("""mul\([0-9]{1,3},[0-9]{1,3}\)""")
+    private fun findDos(line: String): Set<Int> {
+        val regex = Regex("""do\(\)""")
+        return regex.findAll(line).map { it.range.first }.toSet()
+    }
 
-        var sum = 0L
-        while (index < line.length) {
-            val match = regex.find(line, index)
-            if (match != null) {
-                val before = line.substring(index, match.range.first)
-                if (before.contains("don't()")) {
-                    enabled = false
-                }
-                if (before.contains("do()")) {
-                    enabled = true
-                }
+    private fun findDonts(line: String): Set<Int> {
+        val regex = Regex("""don't\(\)""")
+        return regex.findAll(line).map { it.range.first }.toSet()
+    }
 
-                if (enabled) {
-                    sum += multiply(match.value)
-                }
+    private fun isEnabled(
+        mul: MatchResult,
+        dos: Set<Int>,
+        donts: Set<Int>,
+    ): Boolean {
+        val before = mul.range.first
+        val doBefore = dos.filter { it < before }.maxOrNull()
+        val dontBefore = donts.filter { it < before }.maxOrNull()
 
-                index = match.range.last + 1
-            } else {
-                break
-            }
+        // No indicator: enabled!
+        if (doBefore == null && dontBefore == null) {
+            return true
         }
-        return sum
+
+        // Only don't: disabled!
+        if (doBefore == null) {
+            return false
+        }
+        // Only do: enabled!
+        if (dontBefore == null) {
+            return true
+        }
+
+        // Enabled when the do is after the don't
+        return doBefore > dontBefore
     }
 }
