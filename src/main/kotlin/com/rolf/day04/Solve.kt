@@ -2,6 +2,7 @@ package com.rolf.day04
 
 import com.rolf.Day
 import com.rolf.util.MatrixString
+import com.rolf.util.Point
 import com.rolf.util.splitLines
 
 fun main() {
@@ -12,72 +13,46 @@ class Solve : Day() {
     override fun solve1(lines: List<String>) {
         val matrix = MatrixString.build(splitLines(lines))
 
-        // Rotate the matrix to have 4 versions of it
-        val degree90 = matrix.copy()
-        degree90.rotateRight()
-        val degree180 = degree90.copy()
-        degree180.rotateRight()
-        val degree270 = degree180.copy()
-        degree270.rotateRight()
-
-        val xmasCounts = countXMAS(matrix) + countXMAS(degree90) + countXMAS(degree180) + countXMAS(degree270)
+        // Find the letter 'X' and see if it is part of the word 'XMAS' in any direction (horizontal, vertical, diagonal) and in reverse.
+        val xmasCounts = matrix.allPoints().filter {
+            matrix.get(it) == "X"
+        }.sumOf {
+            countXMAS(matrix, it)
+        }
         println(xmasCounts)
     }
 
-    private fun countXMAS(matrix: MatrixString): Int {
-        // Now iterate the matrix from all entry points to construct the strings on each path.
-        // On every entry point, we can iterate horizontally, vertically and diagonally.
-        val borderPoints = matrix.allPoints().filter {
-            it.y == 0
-        }
-
-        // For every entry, iterate 3 ways down: in a straight line and diagonally left and right
-        val lines = mutableListOf<String>()
-        for (entry in borderPoints) {
-            // y++
-            val down = mutableListOf<String>()
-            for (y in entry.y until matrix.height()) {
-                val value = matrix.get(entry.x, y)
-                down.add(value)
-            }
-            lines.add(down.joinToString(""))
-
-            // y++ and x--
-            val downLeft = mutableListOf<String>()
-            var xDown = entry.x
-            for (y in entry.y until matrix.height()) {
-                // The last x position is not valid (because it overlaps with another path)
-                if (entry.x == matrix.width() - 1) {
-                    break
-                }
-                if (xDown < 0) {
-                    break
-                }
-                val value = matrix.get(xDown--, y)
-                downLeft.add(value)
-            }
-            lines.add(downLeft.joinToString(""))
-
-            // y++ and x++
-            val downRight = mutableListOf<String>()
-            xDown = entry.x
-            for (y in entry.y until matrix.height()) {
-                if (xDown >= matrix.width()) {
-                    break
-                }
-                val value = matrix.get(xDown++, y)
-                downRight.add(value)
-            }
-            lines.add(downRight.joinToString(""))
-        }
-
-        return lines.sumOf {
-            countXMAS(it)
-        }
+    private fun countXMAS(matrix: MatrixString, point: Point): Int {
+        // Find the next 3 letters in every direction from the starting point
+        val wordLeft = getWord(matrix, point, -1, 0)
+        val wordRight = getWord(matrix, point, 1, 0)
+        val wordUp = getWord(matrix, point, 0, -1)
+        val wordDown = getWord(matrix, point, 0, 1)
+        val wordUpRight = getWord(matrix, point, 1, -1)
+        val wordUpLeft = getWord(matrix, point, -1, -1)
+        val wordDownRight = getWord(matrix, point, 1, 1)
+        val wordDownLeft = getWord(matrix, point, -1, 1)
+        return listOf(
+            wordLeft,
+            wordRight,
+            wordUp,
+            wordDown,
+            wordUpRight,
+            wordUpLeft,
+            wordDownRight,
+            wordDownLeft
+        ).count { it.startsWith("XMAS") }
     }
 
-    private fun countXMAS(line: String): Int {
-        return line.windowed(4).count { it == "XMAS" }
+    private fun getWord(matrix: MatrixString, start: Point, deltaX: Int, deltaY: Int): String {
+        val word = StringBuilder()
+
+        var location = start
+        while (!matrix.isOutside(location)) {
+            word.append(matrix.get(location))
+            location = location.move(deltaX, deltaY)
+        }
+        return word.toString()
     }
 
     override fun solve2(lines: List<String>) {
