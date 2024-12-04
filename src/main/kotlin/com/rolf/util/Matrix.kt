@@ -84,6 +84,35 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
         }
     }
 
+    fun getBorderPoints(): List<Point> {
+        val points = mutableListOf<Point>()
+        for (x in 0 until width()) {
+            points.add(Point(x, 0))
+            points.add(Point(x, height() - 1))
+        }
+        for (y in 0 until height()) {
+            points.add(Point(0, y))
+            points.add(Point(width() - 1, y))
+        }
+        return points
+    }
+
+    fun getTopEdgePoints() : List<Point> {
+        return (0 until width()).map { Point(it, 0) }
+    }
+
+    fun getBottomEdgePoints() : List<Point> {
+        return (0 until width()).map { Point(it, height() - 1) }
+    }
+
+    fun getLeftEdgePoints() : List<Point> {
+        return (0 until height()).map { Point(0, it) }
+    }
+
+    fun getRightEdgePoints() : List<Point> {
+        return (0 until height()).map { Point(width() - 1, it) }
+    }
+
     fun getTopEdge(): List<T> {
         return getRow(0)
     }

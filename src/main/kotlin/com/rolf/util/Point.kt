@@ -25,6 +25,10 @@ data class Point(val x: Int, val y: Int) : Comparable<Point> {
         return abs(x - other.x) <= 1 && abs(y - other.y) <= 1
     }
 
+    fun move(deltaX: Int, deltaY: Int): Point {
+        return Point(x + deltaX, y + deltaY)
+    }
+
     override fun compareTo(other: Point): Int {
         val yCompare = y.compareTo(other.y)
         if (yCompare != 0) return yCompare

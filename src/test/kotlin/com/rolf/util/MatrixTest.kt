@@ -130,6 +130,106 @@ class MatrixTest {
     }
 
     @Test
+    fun testTopEdgePoints() {
+        val edgePoints = matrix.getTopEdgePoints()
+        assertEquals(10, edgePoints.size)
+        assertEquals(
+            listOf(
+                Point(0, 0),
+                Point(1, 0),
+                Point(2, 0),
+                Point(3, 0),
+                Point(4, 0),
+                Point(5, 0),
+                Point(6, 0),
+                Point(7, 0),
+                Point(8, 0),
+                Point(9, 0)
+            ), edgePoints
+        )
+    }
+
+    @Test
+    fun testBottomEdgePoints() {
+        val edgePoints = matrix.getBottomEdgePoints()
+        assertEquals(10, edgePoints.size)
+        assertEquals(
+            listOf(
+                Point(0, 19),
+                Point(1, 19),
+                Point(2, 19),
+                Point(3, 19),
+                Point(4, 19),
+                Point(5, 19),
+                Point(6, 19),
+                Point(7, 19),
+                Point(8, 19),
+                Point(9, 19)
+            ), edgePoints
+        )
+    }
+
+    @Test
+    fun testLeftEdgePoints() {
+        val edgePoints = matrix.getLeftEdgePoints()
+        assertEquals(20, edgePoints.size)
+        assertEquals(
+            listOf(
+                Point(0, 0),
+                Point(0, 1),
+                Point(0, 2),
+                Point(0, 3),
+                Point(0, 4),
+                Point(0, 5),
+                Point(0, 6),
+                Point(0, 7),
+                Point(0, 8),
+                Point(0, 9),
+                Point(0, 10),
+                Point(0, 11),
+                Point(0, 12),
+                Point(0, 13),
+                Point(0, 14),
+                Point(0, 15),
+                Point(0, 16),
+                Point(0, 17),
+                Point(0, 18),
+                Point(0, 19)
+            ), edgePoints
+        )
+    }
+
+    @Test
+    fun testRightEdgePoints() {
+        val edgePoints = matrix.getRightEdgePoints()
+        assertEquals(20, edgePoints.size)
+        assertEquals(
+            listOf(
+                Point(9, 0),
+                Point(9, 1),
+                Point(9, 2),
+                Point(9, 3),
+                Point(9, 4),
+                Point(9, 5),
+                Point(9, 6),
+                Point(9, 7),
+                Point(9, 8),
+                Point(9, 9),
+                Point(9, 10),
+                Point(9, 11),
+                Point(9, 12),
+                Point(9, 13),
+                Point(9, 14),
+                Point(9, 15),
+                Point(9, 16),
+                Point(9, 17),
+                Point(9, 18),
+                Point(9, 19)
+            ), edgePoints
+        )
+    }
+
+    @Test
     fun testCenter() {
         val m1 = MatrixString.buildDefault(5, 5, ".")
         assertEquals(Point(2, 2), m1.center())

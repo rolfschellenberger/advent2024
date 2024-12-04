@@ -37,4 +37,11 @@ class PointTest {
         assertEquals(135.0, Point(3, 3).angleBetween(Point(2, 4)), 0.0)
         assertEquals(225.0, Point(3, 3).angleBetween(Point(2, 2)), 0.0)
     }
+
+    @Test
+    fun testMove() {
+        assertEquals(Point(3, 3), Point(2, 2).move(1, 1))
+        assertEquals(Point(2, 2), Point(3, 3).move(-1, -1))
+        assertEquals(Point(4, 2), Point(3, 3).move(1, -1))
+    }
 }
