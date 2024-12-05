@@ -25,7 +25,6 @@ class Solve : Day() {
         val rules = parseRules(lines)
         val updates = parseUpdates(lines)
 
-        // Sort the updates by the rules
         val sum = updates.filterNot { update ->
             isValid(rules, update)
         }.map { update ->
