@@ -26,13 +26,11 @@ class Solve : Day() {
         val updates = parseUpdates(lines)
 
         // Sort the updates by the rules
-        val sortedUpdates = updates.filter { update ->
-            !isValid(rules, update)
+        val sum = updates.filterNot { update ->
+            isValid(rules, update)
         }.map { update ->
             sortUpdate(rules, update)
-        }
-
-        var sum = sortedUpdates.sumOf {
+        }.sumOf {
             it[it.size / 2]
         }
         println(sum)
