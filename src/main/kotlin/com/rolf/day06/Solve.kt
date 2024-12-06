@@ -14,23 +14,29 @@ class Solve : Day() {
     override fun solve1(lines: List<String>) {
         val matrix = MatrixString.build(splitLines(lines))
         val (_, locations) = isInfiniteLoop(matrix)
-        println(locations.map { it.first }.toSet().size)
+        val guardLocations = locations.map { it.first }.toSet()
+        println(guardLocations.size)
     }
 
     override fun solve2(lines: List<String>) {
         val matrix = MatrixString.build(splitLines(lines))
         val (_, locations) = isInfiniteLoop(matrix)
+        val guardLocations = locations.map { it.first }.toSet()
 
         var count = 0
-        for (point in locations.map { it.first }.toSet()) {
-            val copy = matrix.copy()
-            if (copy.get(point) == "^") continue
-            copy.set(point, "#")
-
-            val (infinite, _) = isInfiniteLoop(copy)
-            if (infinite) count++
+        for (point in guardLocations) {
+            val copy = placeObstruction(matrix, point)
+            count += if (isInfiniteLoop(copy).first) 1 else 0
         }
         println(count)
+    }
+
+    private fun placeObstruction(matrix: MatrixString, point: Point): MatrixString {
+        val copy = matrix.copy()
+        if (copy.get(point) != "^") {
+            copy.set(point, "#")
+        }
+        return copy
     }
 
     private fun isInfiniteLoop(matrix: MatrixString): Pair<Boolean, Set<Pair<Point, Direction>>> {
