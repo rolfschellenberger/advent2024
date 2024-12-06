@@ -5,6 +5,10 @@ import com.rolf.util.Direction
 import com.rolf.util.MatrixString
 import com.rolf.util.Point
 import com.rolf.util.splitLines
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.atomic.AtomicInteger
 
 fun main() {
     Solve().run()
@@ -23,10 +27,16 @@ class Solve : Day() {
         val (_, locations) = isInfiniteLoop(matrix)
         val guardLocations = locations.map { it.first }.toSet()
 
-        var count = 0
-        for (point in guardLocations) {
-            val copy = placeObstruction(matrix, point)
-            count += if (isInfiniteLoop(copy).first) 1 else 0
+        var count = AtomicInteger()
+        runBlocking(Dispatchers.Default) {
+            for (point in guardLocations) {
+                launch {
+                    val copy = placeObstruction(matrix, point)
+                    if (isInfiniteLoop(copy).first) {
+                        count.incrementAndGet()
+                    }
+                }
+            }
         }
         println(count)
     }
