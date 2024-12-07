@@ -31,13 +31,7 @@ class Solve : Day() {
 
     private fun parseEquations(lines: List<String>): List<Equation> {
         return lines.map {
-            parseEquation(it)
+            Equation.parse(it)
         }
-    }
-
-    private fun parseEquation(line: String): Equation {
-        val (value, numbersText) = line.split(": ")
-        val numbers = numbersText.split(" ").map { it.toLong() }
-        return Equation(value.toLong(), numbers)
     }
 }

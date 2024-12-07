@@ -40,4 +40,12 @@ data class Equation(val value: Long, val numbers: List<Long>) {
             }
         }
     }
+
+    companion object {
+        fun parse(line: String): Equation {
+            val (value, numbersText) = line.split(": ")
+            val numbers = numbersText.split(" ").map { it.toLong() }
+            return Equation(value.toLong(), numbers)
+        }
+    }
 }
