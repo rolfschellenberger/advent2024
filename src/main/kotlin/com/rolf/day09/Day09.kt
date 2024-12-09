@@ -13,12 +13,22 @@ class Solve : Day() {
         val array = toArray(numbers)
 
         // Move the right most non-zero number to the first -1 position in the array
-        // Repeat until there are only -1's at the end of the array
-        while (!sorted(array)) {
-            val lastPositiveNumber = array.indexOfLast { it >= 0 }
-            val firstNegativeNumber = array.indexOfFirst { it < 0 }
-            array[firstNegativeNumber] = array[lastPositiveNumber]
-            array[lastPositiveNumber] = -1
+        var lowerBound = 0
+        var upperBound = array.size - 1
+        while (lowerBound < upperBound) {
+            if (array[lowerBound] >= 0) {
+                lowerBound++
+                continue
+            }
+
+            if (array[upperBound] < 0) {
+                upperBound--
+                continue
+            }
+
+            var temp = array[lowerBound]
+            array[lowerBound] = array[upperBound]
+            array[upperBound] = temp
         }
 
         println(
@@ -52,12 +62,6 @@ class Solve : Day() {
             file = !file
         }
         return array
-    }
-
-    private fun sorted(array: IntArray): Boolean {
-        val lastNonNegativeNumber = array.indexOfLast { it >= 0 }
-        val firstNegativeNumber = array.indexOfFirst { it < 0 }
-        return firstNegativeNumber > lastNonNegativeNumber
     }
 
     override fun solve2(lines: List<String>) {
