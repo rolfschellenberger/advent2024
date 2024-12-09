@@ -35,7 +35,7 @@ data class Equation(val value: Long, val numbers: List<Long>) {
             when (operator) {
                 "*" -> left * right
                 "+" -> left + right
-                "||" -> (left.toString() + right.toString()).toLong()
+                "||" -> "$left$right".toLong()
                 else -> throw IllegalArgumentException("Unknown operator: $operator")
             }
         }
