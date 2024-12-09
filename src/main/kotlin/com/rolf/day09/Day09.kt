@@ -39,7 +39,7 @@ class Solve : Day() {
         var fileId = 0
         for (number in numbers) {
             // Create N elements in the array
-            for (i in 0 until number) {
+            repeat(number) {
                 if (file) {
                     array[pos] = fileId
                 }
