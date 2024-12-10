@@ -21,8 +21,7 @@ class Solve : Day() {
         for (startLocation in startLocations) {
             for (endLocation in endLocations) {
                 val path = map.findPath(
-                    startLocation, endLocation, emptySet<Point>(), false,
-                    customAllowedFunction = this::allowIncreaseByOne
+                    startLocation, endLocation, customAllowedFunction = this::allowIncreaseByOne
                 )
                 if (path.isNotEmpty()) {
                     sum++
@@ -44,8 +43,7 @@ class Solve : Day() {
         for (startLocation in startLocations) {
             for (endLocation in endLocations) {
                 val paths = map.findAllPaths(
-                    startLocation, endLocation, emptySet<Point>(), false,
-                    customAllowedFunction = this::allowIncreaseByOne
+                    startLocation, endLocation, customAllowedFunction = this::allowIncreaseByOne
                 )
                 sum += paths.size
             }
