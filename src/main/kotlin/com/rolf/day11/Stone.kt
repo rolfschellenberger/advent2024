@@ -1,5 +1,7 @@
 package com.rolf.day11
 
+import com.rolf.util.subLong
+
 data class Stone(val value: Long) {
     fun evolve(): List<Stone> {
         if (value == 0L) {
@@ -9,8 +11,8 @@ data class Stone(val value: Long) {
         val valueString = value.toString()
         if (valueString.length % 2 == 0) {
             return listOf(
-                Stone(valueString.substring(0, valueString.length / 2).toLong()),
-                Stone(valueString.substring(valueString.length / 2).toLong())
+                Stone(value.subLong(0, valueString.length / 2)),
+                Stone(value.subLong(valueString.length / 2))
             )
         }
 

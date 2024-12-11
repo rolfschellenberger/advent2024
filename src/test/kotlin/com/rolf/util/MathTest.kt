@@ -50,6 +50,14 @@ class MathTest {
     }
 
     @Test
+    fun testSubIntLong() {
+        assertEquals(2, (-232213).subInt(3, 4))
+        assertEquals(63, (6663).subInt(2))
+        assertEquals(2L, (-232213L).subLong(3, 4))
+        assertEquals(63L, (6663L).subLong(2))
+    }
+
+    @Test
     fun testGreatestCommonDivisor() {
         assertEquals(3, greatestCommonDivisor(6, 9))
         assertEquals(6, greatestCommonDivisor(366, 60))
