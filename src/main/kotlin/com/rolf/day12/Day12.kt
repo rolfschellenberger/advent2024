@@ -17,9 +17,21 @@ class Solve : Day() {
 
         var sum = areas.sumOf { area ->
             val sides = getSides(map, area)
-            sides.sumOf {
-                it.size * area.size
+            val perimeter = sides.sumOf { side ->
+                side.size
             }
+            area.size * perimeter
+        }
+        println(sum)
+    }
+
+    override fun solve2(lines: List<String>) {
+        val map = MatrixString.build(splitLines(lines))
+        val areas = findAreas(map)
+
+        var sum = areas.sumOf { area ->
+            val sides = getSides(map, area)
+            area.size * sides.size
         }
         println(sum)
     }
@@ -120,16 +132,5 @@ class Solve : Day() {
         }
 
         return connectedEdges
-    }
-
-    override fun solve2(lines: List<String>) {
-        val map = MatrixString.build(splitLines(lines))
-        val areas = findAreas(map)
-
-        var sum = areas.sumOf { area ->
-            val sides = getSides(map, area)
-            sides.size * area.size
-        }
-        println(sum)
     }
 }
