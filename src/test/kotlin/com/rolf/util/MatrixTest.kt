@@ -732,7 +732,7 @@ class MatrixTest {
         assertEquals(expected1, maze1.toString())
 
         val maze2 = MatrixString.build(splitLines(input))
-        val waterPoints2 = maze1.waterFill(Point(0, 0), setOf("#"), diagonal = true)
+        val waterPoints2 = maze2.waterFill(Point(0, 0), setOf("#"), diagonal = true)
         waterPoints2.forEach {
             maze2.set(it, "~")
         }
@@ -752,5 +752,29 @@ class MatrixTest {
             ~~~~~~~~~~
             """.trimIndent()
         assertEquals(expected2, maze2.toString())
+
+        val maze3 = MatrixString.build(splitLines(input))
+        maze3.set(1,0, "#")
+        maze3.set(1,1, "#")
+        maze3.set(0,1, "#")
+        val waterPoints3 = maze3.waterFill(Point(0, 0), setOf("#"), diagonal = false)
+        waterPoints3.forEach {
+            maze3.set(it, "~")
+        }
+        val expected3 = """
+            ~#........
+            ###.......
+            .###......
+            .#.#......
+            .#..#.....
+            .#...#....
+            .#######..
+            .#.##..#..
+            .#.#.###..
+            .#.#......
+            .#######..
+            ..........
+            """.trimIndent()
+        assertEquals(expected3, maze3.toString())
     }
 }

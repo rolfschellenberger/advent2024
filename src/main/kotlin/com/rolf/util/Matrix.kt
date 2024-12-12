@@ -476,7 +476,7 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
         vertical: Boolean = true,
         diagonal: Boolean = true,
     ): Set<Point> {
-        val watered = mutableSetOf<Point>()
+        val watered = mutableSetOf<Point>(start)
         val inspect = mutableSetOf(start)
         val notAllowed = find(notAllowedValues).toSet()
         while (inspect.isNotEmpty()) {

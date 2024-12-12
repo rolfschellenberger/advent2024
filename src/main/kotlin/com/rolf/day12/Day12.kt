@@ -12,42 +12,23 @@ fun main() {
 
 class Solve : Day() {
     override fun solve1(lines: List<String>) {
-        // Find all unique regions
         val map = MatrixString.build(splitLines(lines))
-        var result = 0
+        val areas = findAreas(map)
 
-        val allValues = map.allPoints().map { map.get(it) }.toSet()
-        val seen = mutableSetOf<Point>()
-        for (point in map.allPoints()) {
-            if (seen.contains(point)) {
-                continue
+        var sum = areas.sumOf { area ->
+            val sides = getSides(map, area)
+            sides.sumOf {
+                it.size * area.size
             }
-
-            val value = map.get(point)
-            var area = map.waterFill(point, allValues - value, diagonal = false)
-            if (area.isEmpty()) {
-                area = setOf(point)
-            }
-            seen.addAll(area)
-
-            // So for every point in the area, see how many values they touch that does not equal their value
-            var perimeter = 0
-            for (point in area) {
-                val neighbours = map.getNeighbours(point, diagonal = false, wrap = true) - area
-                perimeter += neighbours.size
-            }
-            result += area.size * perimeter
         }
-        println(result)
+        println(sum)
     }
 
-    override fun solve2(lines: List<String>) {
-        // Find all unique regions
-        val map = MatrixString.build(splitLines(lines))
-        var result = 0
+    private fun findAreas(map: MatrixString): List<Set<Point>> {
+        val areas = mutableListOf<Set<Point>>()
+        val seen = mutableSetOf<Point>()
 
         val allValues = map.allPoints().map { map.get(it) }.toSet()
-        val seen = mutableSetOf<Point>()
         for (point in map.allPoints()) {
             if (seen.contains(point)) {
                 continue
@@ -55,47 +36,58 @@ class Solve : Day() {
 
             val value = map.get(point)
             var area = map.waterFill(point, allValues - value, diagonal = false)
-            if (area.isEmpty()) {
-                area = setOf(point)
-            }
             seen.addAll(area)
-
-            // For every point in the area, find its neighbours with direction, so we can find all neighbours on the
-            // same line and direction as an edge
-            var edgePoints = mutableSetOf<Pair<Point, Direction>>()
-            for (point in area) {
-                for (direction in Direction.entries) {
-                    val next = map.getForward(point, direction, wrap = true)!!
-                    if (!area.contains(next)) {
-                        edgePoints.add(next to direction)
-                    }
-                }
-            }
-
-            // Now reduce the edgePoints collection to one edge point per edge
-            val edgesSeen = mutableSetOf<Pair<Point, Direction>>()
-            var areaResult = 0
-            for ((edge, direction) in edgePoints) {
-                // Skip if already seen
-                if (!edgesSeen.add(edge to direction)) continue
-
-                // Now make sure these edges are connected to the edge
-                val connected = findConnectedEdges(map, edge, direction, edgePoints)
-                connected.forEach {
-                    edgesSeen.add(it to direction)
-                }
-                areaResult++
-            }
-            result += area.size * areaResult
+            areas.add(area)
         }
-        println(result)
+        return areas
+    }
+
+    private fun getSides(map: MatrixString, area: Set<Point>): List<Set<Point>> {
+        val edgePoints = findEdgePoints(map, area)
+        return convertToEdges(map, edgePoints)
+    }
+
+    private fun convertToEdges(map: MatrixString, edgePoints: Set<Pair<Point, Direction>>): List<Set<Point>> {
+        // Now reduce the edgePoints collection to edges with all their points
+        val edges = mutableListOf<Set<Point>>()
+
+        val edgesSeen = mutableSetOf<Pair<Point, Direction>>()
+        for ((edge, direction) in edgePoints) {
+            // Skip if already seen
+            if (!edgesSeen.add(edge to direction)) continue
+
+            // Now make sure these edges are connected to the edge
+            val connected = findConnectedEdges(map, edge, direction, edgePoints)
+            connected.forEach {
+                edgesSeen.add(it to direction)
+            }
+            edges.add(connected)
+        }
+        return edges
+    }
+
+    private fun findEdgePoints(
+        map: MatrixString,
+        area: Set<Point>,
+    ): Set<Pair<Point, Direction>> {
+        val edgePoints = mutableSetOf<Pair<Point, Direction>>()
+        // Look in every direction to see if this is not a point part of the area
+        for (point in area) {
+            for (direction in Direction.entries) {
+                val next = map.getForward(point, direction, wrap = true)!!
+                if (!area.contains(next)) {
+                    edgePoints.add(next to direction)
+                }
+            }
+        }
+        return edgePoints
     }
 
     private fun findConnectedEdges(
         map: MatrixString,
         point: Point,
         direction: Direction,
-        edgePoints: MutableSet<Pair<Point, Direction>>,
+        edgePoints: Set<Pair<Point, Direction>>,
     ): Set<Point> {
         // Get all other edges with same direction and axis
         val edgesInLine = when (direction) {
@@ -128,5 +120,16 @@ class Solve : Day() {
         }
 
         return connectedEdges
+    }
+
+    override fun solve2(lines: List<String>) {
+        val map = MatrixString.build(splitLines(lines))
+        val areas = findAreas(map)
+
+        var sum = areas.sumOf { area ->
+            val sides = getSides(map, area)
+            sides.size * area.size
+        }
+        println(sum)
     }
 }
