@@ -618,11 +618,11 @@ class MatrixTest {
         val start = Point(0, 0)
         val end = Point(9, 9)
         val distance = maze.findPath(start, end, walls)
-        assertEquals(26, distance.size)
+        assertEquals(27, distance.size)
 
         // Diagonal test
         val distance2 = maze.findPath(start, end, walls, diagonal = true)
-        assertEquals(10, distance2.size)
+        assertEquals(11, distance2.size)
 
         // 2,6 closing path
         val notAllowed = Point(2, 6)
@@ -632,17 +632,17 @@ class MatrixTest {
         // Find path does not use the maze
         maze.set(notAllowed, "#")
         val distance4 = maze.findPath(start, end, walls)
-        assertEquals(26, distance4.size)
+        assertEquals(27, distance4.size)
         maze.set(notAllowed, ".")
 
         // Find multiple locations
         val end2 = Point(3, 4)
         val distance5 = maze.findPath(start, setOf(end, end2), walls)
-        assertEquals(17, distance5.size)
+        assertEquals(18, distance5.size)
 
         // Find by ignoring the wall value
         val distance6 = maze.findPathByValue(start, end, setOf("#"))
-        assertEquals(26, distance6.size)
+        assertEquals(27, distance6.size)
         maze.set(notAllowed, "#")
         val distance7 = maze.findPathByValue(start, end, setOf("#"))
         assertEquals(0, distance7.size)
@@ -668,25 +668,25 @@ class MatrixTest {
         val start = Point(0, 0)
         val end = Point(9, 9)
         val path = maze.findPath(start, end, walls)
-        assertEquals(18, path.size)
+        assertEquals(19, path.size)
 
         // Take a detour when "a" is expensive.
         val path2 = maze.findPath(start, end, walls, customScoreFunction = this::customScoreFunction1)
-        assertEquals(30, path2.size)
+        assertEquals(31, path2.size)
 
         // Take a small detour when "b" is expensive.
         val path3 = maze.findPath(start, end, walls, customScoreFunction = this::customScoreFunction2)
-        assertEquals(20, path3.size)
+        assertEquals(21, path3.size)
     }
 
-    private fun customScoreFunction1(grid: Matrix<String>, from: Point, to: Point): Int {
+    private fun customScoreFunction1(grid: Matrix<String>, from: Point, to: Point, path: Path): Int {
         return when (grid.get(to)) {
             "a" -> 100
             else -> 1
         }
     }
 
-    private fun customScoreFunction2(grid: Matrix<String>, from: Point, to: Point): Int {
+    private fun customScoreFunction2(grid: Matrix<String>, from: Point, to: Point, path: Path): Int {
         return when (grid.get(to)) {
             "b" -> 100
             else -> 1

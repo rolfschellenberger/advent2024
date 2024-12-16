@@ -3,6 +3,7 @@ package com.rolf.day10
 import com.rolf.Day
 import com.rolf.util.Matrix
 import com.rolf.util.MatrixInt
+import com.rolf.util.Path
 import com.rolf.util.Point
 import com.rolf.util.splitLines
 
@@ -51,7 +52,7 @@ class Solve : Day() {
         println(sum)
     }
 
-    fun allowIncreaseByOne(grid: Matrix<Int>, from: Point, to: Point): Boolean {
+    fun allowIncreaseByOne(grid: Matrix<Int>, from: Point, to: Point, path: Path): Boolean {
         return grid.get(from) + 1 == grid.get(to)
     }
 }

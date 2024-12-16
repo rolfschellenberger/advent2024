@@ -1,6 +1,7 @@
 package com.rolf.util
 
 import java.util.*
+import kotlin.collections.plus
 import kotlin.math.abs
 
 open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
@@ -97,19 +98,19 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
         return points
     }
 
-    fun getTopEdgePoints() : List<Point> {
+    fun getTopEdgePoints(): List<Point> {
         return (0 until width()).map { Point(it, 0) }
     }
 
-    fun getBottomEdgePoints() : List<Point> {
+    fun getBottomEdgePoints(): List<Point> {
         return (0 until width()).map { Point(it, height() - 1) }
     }
 
-    fun getLeftEdgePoints() : List<Point> {
+    fun getLeftEdgePoints(): List<Point> {
         return (0 until height()).map { Point(0, it) }
     }
 
-    fun getRightEdgePoints() : List<Point> {
+    fun getRightEdgePoints(): List<Point> {
         return (0 until height()).map { Point(width() - 1, it) }
     }
 
@@ -370,8 +371,8 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
         to: Point,
         notAllowedLocations: Set<Point> = emptySet(),
         diagonal: Boolean = false,
-        customAllowedFunction: (grid: Matrix<T>, from: Point, to: Point) -> Boolean = { _, _, _ -> true },
-        customScoreFunction: (grid: Matrix<T>, from: Point, to: Point) -> Int = { _, _, _ -> 1 },
+        customAllowedFunction: (grid: Matrix<T>, from: Point, to: Point, path: Path) -> Boolean = { _, _, _, _ -> true },
+        customScoreFunction: (grid: Matrix<T>, from: Point, to: Point, path: Path) -> Int = { _, _, _, _ -> 1 },
     ): Path {
         return findPath(from, setOf(to), notAllowedLocations, diagonal, customAllowedFunction, customScoreFunction)
     }
@@ -381,29 +382,27 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
         to: Set<Point>,
         notAllowedLocations: Set<Point> = emptySet(),
         diagonal: Boolean = false,
-        customAllowedFunction: (grid: Matrix<T>, from: Point, to: Point) -> Boolean = { _, _, _ -> true },
-        customScoreFunction: (grid: Matrix<T>, from: Point, to: Point) -> Int = { _, _, _ -> 1 },
+        customAllowedFunction: (grid: Matrix<T>, from: Point, to: Point, path: Path) -> Boolean = { _, _, _, _ -> true },
+        customScoreFunction: (grid: Matrix<T>, from: Point, to: Point, path: Path) -> Int = { _, _, _, _ -> 1 },
     ): Path {
         val paths = PriorityQueue<Path>()
-        val seen: MutableSet<Point> = mutableSetOf(from)
+        val seen: MutableSet<Point> = mutableSetOf()
         seen.addAll(notAllowedLocations)
 
         // Function to filter allowed locations
-        fun isAllowed(from: Point, to: Point): Boolean {
+        fun isAllowed(from: Point, to: Point, path: Path): Boolean {
             if (seen.contains(to)) return false
             if (notAllowedLocations.contains(to)) return false
-            if (!customAllowedFunction(this, from, to)) return false
+            if (!customAllowedFunction(this, from, to, path)) return false
             return true
         }
 
-        fun getNeighbours(point: Point): List<Point> {
-            return getNeighbours(point, diagonal = diagonal).filter { isAllowed(point, it) }.sorted()
+        fun getNeighbours(point: Point, path: Path): List<Point> {
+            return getNeighbours(point, diagonal = diagonal).filter { isAllowed(point, it, path) }.sorted()
         }
 
         // Start with the neighbours of the starting point that are allowed to visit.
-        for (neighbour in getNeighbours(from)) {
-            paths.add(Path(listOf(neighbour)))
-        }
+        paths.add(Path(listOf(from)))
 
         while (paths.isNotEmpty()) {
             val path = paths.poll()
@@ -418,8 +417,8 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
             if (pathEnd !in seen) {
                 seen.add(pathEnd)
 
-                for (neighbour in getNeighbours(pathEnd)) {
-                    val score = customScoreFunction(this, pathEnd, neighbour)
+                for (neighbour in getNeighbours(pathEnd, path)) {
+                    val score = customScoreFunction(this, pathEnd, neighbour, path)
                     paths.add(Path(path.locations + neighbour, path.score + score))
                 }
             }
@@ -433,30 +432,33 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
         to: Point,
         notAllowedLocations: Set<Point> = emptySet(),
         diagonal: Boolean = false,
-        customAllowedFunction: (grid: Matrix<T>, from: Point, to: Point) -> Boolean = { _, _, _ -> true },
-    ): List<List<Point>> {
+        customAllowedFunction: (grid: Matrix<T>, from: Point, to: Point, path: Path) -> Boolean = { _, _, _, _ -> true },
+        customScoreFunction: (grid: Matrix<T>, from: Point, to: Point, path: Path) -> Int = { _, _, _, _ -> 1 },
+    ): List<Path> {
         val seen: MutableSet<Point> = notAllowedLocations.toMutableSet()
 
         // Function to filter allowed locations
-        fun isAllowed(from: Point, to: Point): Boolean {
+        fun isAllowed(from: Point, to: Point, path: Path): Boolean {
             if (seen.contains(to)) return false
             if (notAllowedLocations.contains(to)) return false
-            if (!customAllowedFunction(this, from, to)) return false
+            if (!customAllowedFunction(this, from, to, path)) return false
             return true
         }
 
-        fun getNeighbours(point: Point): List<Point> {
-            return getNeighbours(point, diagonal = diagonal).filter { isAllowed(point, it) }.sorted()
+        fun getNeighbours(point: Point, path: Path): List<Point> {
+            return getNeighbours(point, diagonal = diagonal).filter { isAllowed(point, it, path) }.sorted()
         }
 
-        fun dfs(from: Point, paths: MutableList<List<Point>>, path: List<Point> = emptyList()) {
+        fun dfs(from: Point, paths: MutableList<Path>, path: Path = Path(listOf(from))) {
             seen.add(from)
 
             if (from == to) {
                 paths.add(path)
             } else {
-                for (neighbour in getNeighbours(from)) {
-                    dfs(neighbour, paths, path + neighbour)
+                for (neighbour in getNeighbours(from, path)) {
+                    val score = customScoreFunction(this, from, neighbour, path)
+                    val p = Path(path.locations + neighbour, path.score + score)
+                    dfs(neighbour, paths, p)
                 }
             }
 
@@ -464,7 +466,7 @@ open class Matrix<T>(internal val input: MutableList<MutableList<T>>) {
             seen.remove(from)
         }
 
-        val paths = mutableListOf<List<Point>>()
+        val paths = mutableListOf<Path>()
         dfs(from, paths)
         return paths
     }
