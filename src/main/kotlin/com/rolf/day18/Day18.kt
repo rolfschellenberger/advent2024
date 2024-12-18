@@ -28,19 +28,20 @@ class Solve : Day() {
 
         val memory = MatrixString.buildDefault(memorySize, memorySize, ".")
         val notAllowed = mutableSetOf<Point>()
-        var lastByte = ""
+        var lastPath = memory.findPath(memory.topLeft(), memory.bottomRight(), notAllowed, diagonal = false)
         for (line in lines) {
             val (x, y) = line.split(",").map { it.toInt() }
             val point = Point(x, y)
             memory.set(point, "#")
-            lastByte = "$x,$y"
             notAllowed.add(point)
 
-            val path = memory.findPath(memory.topLeft(), memory.bottomRight(), notAllowed, diagonal = false)
-            if (path.size == 0) {
-                break
+            if (lastPath.locations.toSet().contains(point)) {
+                lastPath = memory.findPath(memory.topLeft(), memory.bottomRight(), notAllowed, diagonal = false)
+                if (lastPath.size == 0) {
+                    println("$x,$y")
+                    break
+                }
             }
         }
-        println(lastByte)
     }
 }
