@@ -17,7 +17,7 @@ class Solve : Day() {
 
         println(
             designs
-                .map { isPossible(towels, it) }
+                .map { getPossibilities(towels, it) }
                 .count { it > 0 }
         )
     }
@@ -26,8 +26,7 @@ class Solve : Day() {
         val (towels, designs) = parse(lines)
 
         println(
-            designs
-                .sumOf { isPossible(towels, it) }
+            designs.sumOf { getPossibilities(towels, it) }
         )
     }
 
@@ -37,11 +36,11 @@ class Solve : Day() {
         return towels to designs
     }
 
-    fun isPossible(towels: List<String>, design: String): Long {
-        return isPossibleWithCache(towels, design, mutableMapOf<String, Long>())
-    }
-
-    fun isPossibleWithCache(towels: List<String>, design: String, cache: MutableMap<String, Long>): Long {
+    fun getPossibilities(
+        towels: List<String>,
+        design: String,
+        cache: MutableMap<String, Long> = mutableMapOf(),
+    ): Long {
         if (design in cache) return cache[design]!!
         var count = 0L
 
@@ -52,7 +51,7 @@ class Solve : Day() {
         for (towel in towels) {
             if (design.startsWith(towel)) {
                 val remaining = design.removePrefix(towel)
-                count += isPossibleWithCache(towels, remaining, cache)
+                count += getPossibilities(towels, remaining, cache)
             }
         }
 
