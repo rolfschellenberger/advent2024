@@ -34,8 +34,8 @@ abstract class Day {
         println("-- $title | $fileName --")
         val time = measureTime {
             function(removeLastEmptyLine(readLines(fileName)))
-        }.inWholeMilliseconds
-        println("-- ${time}ms --")
+        }
+        println("-- $time --")
     }
 
     protected open fun testRun(): Boolean = true
