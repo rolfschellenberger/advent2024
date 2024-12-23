@@ -11,11 +11,15 @@ fun main() {
 }
 
 class Solve : Day() {
-    override fun realRun(): Boolean {
-        return true
+    override fun solve1(lines: List<String>) {
+        println(solve(lines, 2))
     }
 
-    override fun solve1(lines: List<String>) {
+    override fun solve2(lines: List<String>) {
+        println(solve(lines, 25))
+    }
+
+    private fun solve(lines: List<String>, depth: Int): Long {
         val numPad = """
             789
             456
@@ -53,24 +57,21 @@ class Solve : Day() {
 
         var totalComplexity = 0L
         for (code in lines) {
-            println(code)
             var next = getNextCodes(code, numericPossiblePaths)
 
-            repeat(2) {
-                val allNext = mutableListOf<String>()
-                for (n in next) {
-                    val possibleNext = getNextCodes(n, directionalPossiblePaths)
-                    allNext.addAll(possibleNext)
+            var minLength = Long.MAX_VALUE
+            for (n in next) {
+                var length = 0L
+                for ((a, b) in getAllPairs(n)) {
+                    length += shortestLength(a, b, depth, directionalPossiblePaths)
                 }
-                next = allNext
+                minLength = minOf(minLength, length)
             }
 
-            val minLength = next.minOf { it.length }
-            val numericPart = code.filter { it.isDigit() }.toInt()
-            val complexity = minLength * numericPart
+            val complexity = minLength * code.filter { it.isDigit() }.toInt()
             totalComplexity += complexity
         }
-        println(totalComplexity)
+        return totalComplexity
     }
 
     private fun findShortestPaths(
@@ -110,7 +111,7 @@ class Solve : Day() {
         possiblePaths: MutableMap<Pair<String, String>, List<String>>,
     ): List<String> {
         val sequences = mutableListOf<List<String>>()
-        for ((from, to) in "A$code".zipWithNext()) {
+        for ((from, to) in getAllPairs(code)) {
             val possiblePaths = possiblePaths[Pair(from.toString(), to.toString())] ?: error("No sequences found")
             sequences.add(possiblePaths)
         }
@@ -134,61 +135,44 @@ class Solve : Day() {
         return result
     }
 
-    override fun solve2(lines: List<String>) {
-        val numPad = """
-            789
-            456
-            123
-             0A
-             """.trimIndent().lines()
-        val numericKeypad = MatrixString.build(splitLines(numPad))
-        val notAllowedNumericKeypad = numericKeypad.find(" ").toSet()
+    private fun getAllPairs(code: String): List<Pair<String, String>> {
+        return "A$code".zipWithNext().map {
+            it.first.toString() to it.second.toString()
+        }
+    }
 
-        val dirPad = """
-             ^A
-            <v>
-             """.trimIndent().lines()
-        val directionalKeypad = MatrixString.build(splitLines(dirPad))
-        val notAllowedDirectionalKeypad = directionalKeypad.find(" ").toSet()
-
-        // Calculate the possible shortest paths between two points on every keypad
-        val numericPossiblePaths = mutableMapOf<Pair<String, String>, List<String>>()
-        for (pointA in numericKeypad.allElements() - " ") {
-            for (pointB in numericKeypad.allElements() - " ") {
-                val shortestPaths = findShortestPaths(numericKeypad, pointA, pointB, notAllowedNumericKeypad)
-                val sequences = shortestPaths.map { toSequence(it) }
-                numericPossiblePaths[Pair(pointA, pointB)] = sequences.map { it }
-            }
+    private fun shortestLength(
+        from: String,
+        to: String,
+        depth: Int,
+        possiblePaths: MutableMap<Pair<String, String>, List<String>>,
+        cache: MutableMap<String, Long> = mutableMapOf(),
+    ): Long {
+        val key = "$from-$to-$depth"
+        cache[key]?.let {
+            return it
         }
 
-        val directionalPossiblePaths = mutableMapOf<Pair<String, String>, List<String>>()
-        for (pointA in directionalKeypad.allElements() - " ") {
-            for (pointB in directionalKeypad.allElements() - " ") {
-                val shortestPaths = findShortestPaths(directionalKeypad, pointA, pointB, notAllowedDirectionalKeypad)
-                val sequences = shortestPaths.map { toSequence(it) }
-                directionalPossiblePaths[Pair(pointA, pointB)] = sequences.map { it }
-            }
+        if (depth == 0) {
+            return 0
+            throw IllegalArgumentException("Depth must be at least 1")
         }
 
-        var totalComplexity = 0L
-        for (code in lines) {
-            println(code)
-            var next = getNextCodes(code, numericPossiblePaths)
-
-            repeat(25) {
-                val allNext = mutableListOf<String>()
-                for (n in next) {
-                    val possibleNext = getNextCodes(n, directionalPossiblePaths)
-                    allNext.addAll(possibleNext)
-                }
-                next = allNext
-            }
-
-            val minLength = next.minOf { it.length }
-            val numericPart = code.filter { it.isDigit() }.toInt()
-            val complexity = minLength * numericPart
-            totalComplexity += complexity
+        var minLength = Long.MAX_VALUE
+        val nextPatterns = possiblePaths[Pair(from.toString(), to.toString())] ?: error("No sequences found")
+        if (depth == 1) {
+            return nextPatterns[0].length.toLong()
         }
-        println(totalComplexity)
+
+        for (nextPattern in nextPatterns) {
+            var length = 0L
+            for ((a, b) in getAllPairs(nextPattern)) {
+                length += shortestLength(a.toString(), b.toString(), depth - 1, possiblePaths, cache)
+            }
+            minLength = minOf(minLength, length)
+        }
+
+        cache[key] = minLength
+        return minLength
     }
 }
