@@ -10,10 +10,6 @@ fun main() {
 }
 
 class Solve : Day() {
-    override fun realRun(): Boolean {
-        return true
-    }
-
     override fun solve1(lines: List<String>) {
         val network = parseNetwork(lines)
         val triads = mutableSetOf<Set<String>>()

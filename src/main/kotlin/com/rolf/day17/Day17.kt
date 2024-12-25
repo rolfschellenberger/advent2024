@@ -7,14 +7,6 @@ fun main() {
 }
 
 class Solve : Day() {
-    override fun realRun(): Boolean {
-        return true
-    }
-
-    override fun testRun(): Boolean {
-        return true
-    }
-
     override fun solve1(lines: List<String>) {
         // Initial register values
         val registerA = lines[0].split(": ")[1].toInt()
